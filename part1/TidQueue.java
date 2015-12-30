@@ -1,13 +1,23 @@
 package part1;
 
-public class CyclicQueue {
+/*
+ * Class for handling a cyclic queue composed by
+ * threads TIDs.
+ * 
+ * Note: We don't know how many threads will use this
+ * queue, and we don't even know how long the queue will be.
+ * For those reasons we avoid any deadlock possibility by
+ * using notifyAll() instead of notify().
+ */
+
+public class TidQueue {
 	private long[] queue;
 	private int lenght;
 	private int count;
 	private int front;
 	private int rear;
 	
-	public CyclicQueue(int n) {
+	public TidQueue(int n) {
 		queue = new long[n];
 		lenght = n;
 		count = rear = front = 0;
@@ -38,7 +48,11 @@ public class CyclicQueue {
 	}
 	
 	public synchronized long firstElem() {
-		return queue[front];
+		if (count != 0) {
+			return queue[front];
+		} else {
+			return -1; //this number could never be a thread TID
+		}
 	}
 	
 	public synchronized boolean empty() {

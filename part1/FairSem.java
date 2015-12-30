@@ -1,13 +1,13 @@
 package part1;
 
 public class FairSem {
-	CyclicQueue tid_queue;				// thread queue
-	CyclicQueue extracted_tid;			// extracted TID queue
-	private int value;					// semaphore value
+	TidQueue tid_queue;				// thread queue
+	TidQueue extracted_tid;			// extracted TID queue
+	private int value;				// semaphore value
 	
 	public FairSem(int n, int t_num) {
-		tid_queue = new CyclicQueue(t_num);
-		extracted_tid = new CyclicQueue(t_num);
+		tid_queue = new TidQueue(t_num);
+		extracted_tid = new TidQueue(t_num);
 		value = n;
 	}
 	
@@ -20,6 +20,9 @@ public class FairSem {
 					} catch (InterruptedException e) {}
 				}
 				extracted_tid.extract();
+				if (!(extracted_tid.empty())) {	/* wake up the other waiting threads */
+					notifyAll();
+				}
 		} else value--;
 		System.out.println(Thread.currentThread().getName() + " terminated P\n");
 	}
