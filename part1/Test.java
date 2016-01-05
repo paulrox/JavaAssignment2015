@@ -21,10 +21,10 @@ class Worker extends Thread {
 public class Test {
 	
 	public static void main(String[] args) {
-		FairSem s = new FairSem(3, 10);
-		Worker[] threads = new Worker[10];
+		FairSem s = new FairSem(1);
+		Worker[] threads = new Worker[5];
 		
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			threads[i] = new Worker(s);
 			threads[i].start();
 		}
