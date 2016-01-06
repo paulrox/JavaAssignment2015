@@ -14,6 +14,7 @@ public class PortArray<T> {
 	FairSem mutex, available;
 	
 	public PortArray(int n) {
+		SynchPort<T> p;
 		port_num = n;
 		ports = new ArrayList<SynchPort<T>>();
 		mutex = new FairSem(1);
@@ -21,6 +22,8 @@ public class PortArray<T> {
 		waiting = new int[n];
 		for (int i = 0; i < n; i++) {
 			waiting[i] = 0;
+			p = new SynchPort<T>();
+			ports.add(p);
 		}
 	}
 	
