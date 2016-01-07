@@ -8,6 +8,12 @@ public class Message<T> {
 		info = null;
 		ret = null;
 	}
+	
+	public Message(T i) {
+		info = i;
+		ret = null;
+	}
+	
 	public Message(T i, SynchPort<T> p) {
 		info = i;
 		ret = p;
