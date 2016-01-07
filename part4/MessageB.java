@@ -11,6 +11,12 @@ public class MessageB<T> {
 		priority = 0;
 	}
 	
+	public MessageB(T val) {
+		value = val;
+		tid = -1;
+		priority = -1;
+	}
+	
 	public MessageB(T val, long t) {
 		value = val;
 		tid = t;

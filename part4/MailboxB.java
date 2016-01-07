@@ -18,6 +18,7 @@ public class MailboxB extends Thread{
 	
 	public MailboxB() {
 		super("Mailbox");
+		SynchPort<MessageB<Integer>> sp = new SynchPort<MessageB<Integer>>();
 		request = new SynchPort<MessageB<Integer>>();
 		insert_p = new SynchPort<MessageB<Integer>>();
 		prod_reply = new ArrayList<SynchPort<MessageB<Integer>>>();
@@ -25,6 +26,7 @@ public class MailboxB extends Thread{
 		waiting_cons = false;
 		for (int i = 0; i < 10; i++) {
 			blocked[i] = false;
+			prod_reply.add(sp);
 		}
 		buffer = new Queue();
 		tid_queue = new TidQueue();
@@ -36,7 +38,7 @@ public class MailboxB extends Thread{
 		System.out.println("Mailbox started");
 		Message<MessageB<Integer>> msg_in, msg_out;
 		msg_in = new Message<MessageB<Integer>>();
-		int val, k;
+		int val, i;
 		long prod_tid;
 		while(true) {
 			if (!buffer.empty() || !buffer.full()) {
@@ -72,12 +74,13 @@ public class MailboxB extends Thread{
 						msg_out.info = new MessageB<Integer>(val, prod_tid);
 						msg_in.ret.send(msg_out);
 						if (waiting_prod > 0) {
-							k = 0;
-							while(!blocked[k]) k++;
+							i = 0;
+							while(!blocked[i]) i++;
 							waiting_prod--;
+							blocked[i] = false;
 							msg_out = new Message<MessageB<Integer>>();
 							msg_out.info = new MessageB<Integer>(0, -1);
-							prod_reply.get(k).send(msg_out);
+							prod_reply.get(i).send(msg_out);
 							msg_in = insert_p.receive();
 							buffer.insert(msg_in.info.value);
 							tid_queue.insert(msg_in.info.tid);

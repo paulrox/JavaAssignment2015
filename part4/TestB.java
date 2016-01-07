@@ -7,22 +7,22 @@ import part2.Message;
 class ProducerB extends Thread {
 	int priority;
 	MailboxB mb;
-	SynchPort<TidMsg<Integer>> in;
+	SynchPort<MessageB<Integer>> in;
 	
 	public ProducerB(MailboxB m, String name, int prio) {
 		super(name);
 		priority = prio;
 		mb = m;
-		in = new SynchPort<TidMsg<Integer>>();
+		in = new SynchPort<MessageB<Integer>>();
 	}
 	public void run() {
-		Message<TidMsg<Integer>> msg = new Message<TidMsg<Integer>>();
+		Message<MessageB<Integer>> msg = new Message<MessageB<Integer>>();
 		for (int i = 0; i < 5; i++) {
-			msg.info = new TidMsg<Integer>(0); /* insert request */
+			msg.info = new MessageB<Integer>(0, -1, priority); /* insert request */
 			msg.ret = in;
 			mb.request.send(msg);
-			msg = new Message<TidMsg<Integer>>();
-			msg.info = new TidMsg<Integer>(
+			msg = new Message<MessageB<Integer>>();
+			msg.info = new MessageB<Integer>(
 					ThreadLocalRandom.current().nextInt(0, 100),
 					Thread.currentThread().getId());
 			msg.ret = in;
@@ -33,18 +33,18 @@ class ProducerB extends Thread {
 
 class ConsumerB extends Thread {
 	MailboxB mb;
-	public SynchPort<TidMsg<Integer>> in;
+	public SynchPort<MessageB<Integer>> in;
 	
 	public ConsumerB(MailboxB m, String name) {
 		super(name);
 		mb = m;
-		in = new SynchPort<TidMsg<Integer>>();
+		in = new SynchPort<MessageB<Integer>>();
 	}
 	public void run() {
-		Message<TidMsg<Integer>> msg;
+		Message<MessageB<Integer>> msg;
 		for (int i = 0; i < 50; i++) {
-			msg = new Message<TidMsg<Integer>>();
-			msg.info = new TidMsg<Integer>(1);  /* remove request */
+			msg = new Message<MessageB<Integer>>();
+			msg.info = new MessageB<Integer>(1);  /* remove request */
 			msg.ret = in;
 			mb.request.send(msg);
 			msg = in.receive();
