@@ -4,12 +4,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import part2.SynchPort;
 import part2.Message;
 
-class ProducerA extends Thread {
-	MailboxA mb;
+class ProducerB extends Thread {
+	int priority;
+	MailboxB mb;
 	SynchPort<TidMsg<Integer>> in;
 	
-	public ProducerA(MailboxA m, String name) {
+	public ProducerB(MailboxB m, String name, int prio) {
 		super(name);
+		priority = prio;
 		mb = m;
 		in = new SynchPort<TidMsg<Integer>>();
 	}
@@ -29,11 +31,11 @@ class ProducerA extends Thread {
 	}
 }
 
-class ConsumerA extends Thread {
-	MailboxA mb;
+class ConsumerB extends Thread {
+	MailboxB mb;
 	public SynchPort<TidMsg<Integer>> in;
 	
-	public ConsumerA(MailboxA m, String name) {
+	public ConsumerB(MailboxB m, String name) {
 		super(name);
 		mb = m;
 		in = new SynchPort<TidMsg<Integer>>();
@@ -52,14 +54,14 @@ class ConsumerA extends Thread {
 	}
 }
 
-public class TestA {
+public class TestB {
 	
 	public static void main(String[] args) {
-		MailboxA mail = new MailboxA();
-		ConsumerA cons = new ConsumerA(mail, "Consumer");
-		ProducerA[] prods = new ProducerA[10];
+		MailboxB mail = new MailboxB();
+		ConsumerB cons = new ConsumerB(mail, "Consumer");
+		ProducerB[] prods = new ProducerB[10];
 		for (int i = 0; i < 10; i++) {
-			prods[i] = new ProducerA(mail, "Producer-" + i);
+			prods[i] = new ProducerB(mail, "Producer-" + i, i + 1);
 		}
 		mail.start();
 		cons.start();
