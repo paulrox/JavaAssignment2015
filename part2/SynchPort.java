@@ -16,8 +16,8 @@ public class SynchPort <T> {
 	public void send(Message<T> m) {
 		empty.fairWait();
 		slot = m;
-		System.out.println(Thread.currentThread().getName() +
-				" sent message " + m.info);
+		//System.out.println(Thread.currentThread().getName() +
+		//		" sent message " + m.info);
 		full.fairSignal();
 		synch.fairWait();
 	}
@@ -27,8 +27,8 @@ public class SynchPort <T> {
 		
 		full.fairWait();
 		m = slot;
-		System.out.println(Thread.currentThread().getName() +
-				" received message " + m.info);
+		//System.out.println(Thread.currentThread().getName() +
+		//		" received message " + m.info);
 		empty.fairSignal();
 		synch.fairSignal();
 		
