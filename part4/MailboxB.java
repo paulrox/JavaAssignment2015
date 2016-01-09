@@ -46,10 +46,13 @@ public class MailboxB extends Thread{
 				switch(msg_in.info.value) {
 				case 0:	/* insert request */
 					if (buffer.full()) {
+						prod_reply.set(msg_in.info.priority - 1, msg_in.ret);
 						waiting_prod++;
 						blocked[msg_in.info.priority - 1] = true;
-						prod_reply.add(msg_in.info.priority - 1, msg_in.ret);
 					} else {
+						msg_out = new Message<MessageB<Integer>>();
+						msg_out.info = new MessageB<Integer>(0, -1);
+						msg_in.ret.send(msg_out);
 						msg_in = insert_p.receive();
 						buffer.insert(msg_in.info.value);
 						tid_queue.insert(msg_in.info.tid);;

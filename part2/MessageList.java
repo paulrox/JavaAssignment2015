@@ -1,5 +1,5 @@
 /*
- * Class for handling a list of thread TIDs
+ * Class for handling a list Messages
  * 
  * Note: We don't know how many threads will use this
  * queue, and we don't even know how long the queue will be.
@@ -7,19 +7,19 @@
  * using notifyAll() instead of notify().
  */
 
-package part1;
+package part2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TidList {
-	List<Long> queue;
+public class MessageList<T> {
+	List<Message<T>> queue;
 	
-	public TidList() {
-		queue = new ArrayList<Long>();
+	public MessageList() {
+		queue = new ArrayList<Message<T>>();
 	}
 	
-	public synchronized void insert(long var) {
+	public synchronized void insert(Message<T> var) {
 		while (queue.size() == Integer.MAX_VALUE) {
 			try { wait();
 			} catch (InterruptedException e) {}
@@ -28,8 +28,8 @@ public class TidList {
 		notifyAll();
 	}
 	
-	public synchronized long extract() {
-		long tmp;
+	public synchronized Message<T> extract() {
+		Message<T> tmp;
 		while (queue.isEmpty()) {
 			try{ wait();
 			} catch (InterruptedException e) {}
@@ -39,11 +39,11 @@ public class TidList {
 		return tmp;
 	}
 	
-	public synchronized long firstElem() {
+	public synchronized Message<T> firstElem() {
 		if (!queue.isEmpty()) {
 			return queue.get(0);
 		} else {
-			return -1; //this number could never be a thread TID
+			return null; //this number could never be a thread TID
 		}
 	}
 	

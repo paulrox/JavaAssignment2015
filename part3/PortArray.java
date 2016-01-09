@@ -3,8 +3,8 @@ package part3;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
 import part1.FairSem;
+import part2.Message;
 import part2.SynchPort;
 
 public class PortArray<T> {
@@ -27,18 +27,18 @@ public class PortArray<T> {
 		}
 	}
 	
-	public void send(MessageInc<T> m, int n) {
+	public void send(Message<MessageInc<T>> m, int n) {
 		mutex.fairWait();
 		waiting[n]++;
 		mutex.fairSignal();
 		available.fairSignal();
 		System.out.println(Thread.currentThread().getName() +
-				" sent message " + m.msg.info + " through port " + n);
-		ports.get(n).send(m.msg);
+				" sent message " + m.info.msg + " through port " + n);
+		ports.get(n).send(m);
 	}
 	
-	public MessageInc<T> receive(int[] v, int n) {
-		MessageInc<T> m = new MessageInc<T>();
+	public Message<MessageInc<T>> receive(int[] v, int n) {
+		Message<MessageInc<T>> m = new Message<MessageInc<T>>();
 		int rand_i, j;
 		boolean found = false;
 		j = 0;
@@ -62,8 +62,8 @@ public class PortArray<T> {
 		}
 		waiting[j]--;
 		mutex.fairSignal();
-		m.msg = ports.get(j).receive();
-		m.p_index = j;
+		m = ports.get(j).receive();
+		m.info.p_index = j;
 		System.out.println(Thread.currentThread().getName() +
 				" received message " + m.msg.info + " from port " + m.p_index);
 		return m;	

@@ -18,9 +18,12 @@ class ProducerB extends Thread {
 	public void run() {
 		Message<MessageB<Integer>> msg = new Message<MessageB<Integer>>();
 		for (int i = 0; i < 5; i++) {
+			try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
+			} catch (InterruptedException e) {}
 			msg.info = new MessageB<Integer>(0, -1, priority); /* insert request */
 			msg.ret = in;
 			mb.request.send(msg);
+			msg = in.receive();
 			msg = new Message<MessageB<Integer>>();
 			msg.info = new MessageB<Integer>(
 					ThreadLocalRandom.current().nextInt(0, 100),
@@ -43,6 +46,8 @@ class ConsumerB extends Thread {
 	public void run() {
 		Message<MessageB<Integer>> msg;
 		for (int i = 0; i < 50; i++) {
+			try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
+			} catch (InterruptedException e) {}
 			msg = new Message<MessageB<Integer>>();
 			msg.info = new MessageB<Integer>(1);  /* remove request */
 			msg.ret = in;
