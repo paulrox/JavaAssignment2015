@@ -27,18 +27,18 @@ public class PortArray<T> {
 		}
 	}
 	
-	public void send(Message<MessageInc<T>> m, int n) {
+	public void send(Message<T> m, int n) {
 		mutex.fairWait();
 		waiting[n]++;
 		mutex.fairSignal();
 		available.fairSignal();
 		System.out.println(Thread.currentThread().getName() +
-				" sent message " + m.info.msg + " through port " + n);
+				" sent message " + m.info + " through port " + n);
 		ports.get(n).send(m);
 	}
 	
-	public Message<MessageInc<T>> receive(int[] v, int n) {
-		Message<MessageInc<T>> m = new Message<MessageInc<T>>();
+	public Message<T> receive(int[] v, int n) {
+		Message<T> m = new Message<T>();
 		int rand_i, j;
 		boolean found = false;
 		j = 0;
@@ -63,9 +63,9 @@ public class PortArray<T> {
 		waiting[j]--;
 		mutex.fairSignal();
 		m = ports.get(j).receive();
-		m.info.p_index = j;
+		m.index = j;
 		System.out.println(Thread.currentThread().getName() +
-				" received message " + m.msg.info + " from port " + m.p_index);
+				" received message " + m.info + " from port " + m.index);
 		return m;	
 	}
 }

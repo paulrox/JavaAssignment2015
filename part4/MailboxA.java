@@ -4,9 +4,9 @@ import part2.SynchPort;
 import part2.Message;
 
 public class MailboxA extends Thread{
-	public SynchPort<TidMsg<Integer>> request;
-	public SynchPort<TidMsg<Integer>> insert_p;
-	SynchPort<TidMsg<Integer>> cons_port;
+	public SynchPort<Integer> request;
+	public SynchPort<Integer> insert_p;
+	SynchPort<Integer> cons_port;
 	int waiting_prod;
 	boolean waiting_cons;
 	Queue buffer;
@@ -14,8 +14,8 @@ public class MailboxA extends Thread{
 	
 	public MailboxA() {
 		super("Mailbox");
-		request = new SynchPort<TidMsg<Integer>>();
-		insert_p = new SynchPort<TidMsg<Integer>>();
+		request = new SynchPort<Integer>();
+		insert_p = new SynchPort<Integer>();
 		waiting_prod = 0;
 		waiting_cons = false;
 		buffer = new Queue();
@@ -26,26 +26,27 @@ public class MailboxA extends Thread{
 	
 	public void run() {
 		System.out.println("Mailbox started");
-		Message<TidMsg<Integer>> msg_in, msg_out;
-		msg_in = new Message<TidMsg<Integer>>();
+		Message<Integer> msg_in, msg_out;
+		msg_in = new Message<Integer>();
 		int val;
 		long prod_tid;
 		while(true) {
 			if (!buffer.empty() || !buffer.full()) {
 				msg_in = request.receive();
-				switch(msg_in.info.value) {
+				switch(msg_in.info) {
 				case 0:	/* insert request */
 					if (buffer.full()) {
 						waiting_prod++;
 					} else {
 						msg_in = insert_p.receive();
-						buffer.insert(msg_in.info.value);
-						tid_queue.insert(msg_in.info.tid);;
+						buffer.insert(msg_in.info);
+						tid_queue.insert(msg_in.tid);;
 						if (waiting_cons) {
 							val = buffer.remove();
 							prod_tid = tid_queue.remove();
-							msg_out = new Message<TidMsg<Integer>>();
-							msg_out.info = new TidMsg<Integer>(val, prod_tid);
+							msg_out = new Message<Integer>();
+							msg_out.info = val;
+							msg_out.tid = prod_tid;
 							waiting_cons = false;
 							cons_port.send(msg_out);
 						}
@@ -58,14 +59,15 @@ public class MailboxA extends Thread{
 					} else {
 						val = buffer.remove();
 						prod_tid = tid_queue.remove();
-						msg_out = new Message<TidMsg<Integer>>();
-						msg_out.info = new TidMsg<Integer>(val, prod_tid);
+						msg_out = new Message<Integer>();
+						msg_out.info = val;
+						msg_out.tid = prod_tid;
 						msg_in.ret.send(msg_out);
 						if (waiting_prod > 0) {
 							waiting_prod--;
 							msg_in = insert_p.receive();
-							buffer.insert(msg_in.info.value);
-							tid_queue.insert(msg_in.info.tid);
+							buffer.insert(msg_in.info);
+							tid_queue.insert(msg_in.tid);
 						}
 					}
 				}

@@ -13,8 +13,9 @@ class Producer extends Thread {
 		in = inport;
 	}
 	public void run() {
-		Message<Integer> msg = new Message<Integer>
-		(ThreadLocalRandom.current().nextInt(0, 100), in);
+		Message<Integer> msg = new Message<Integer>();
+		msg.info = ThreadLocalRandom.current().nextInt(0, 100);
+		msg.ret = in;
 		cons.in.send(msg);
 	}
 }

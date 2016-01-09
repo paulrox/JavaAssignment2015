@@ -1,6 +1,7 @@
 package part3;
 
 import java.util.concurrent.ThreadLocalRandom;
+import part2.Message;
 import part2.SynchPort;
 
 class Producer extends Thread {
@@ -16,8 +17,9 @@ class Producer extends Thread {
 		port_index = num;
 	}
 	public void run() {
-		MessageInc<Integer> msg = new MessageInc<Integer>
-		(ThreadLocalRandom.current().nextInt(0, 100), in);
+		Message<Integer> msg = new Message<Integer>();
+		msg.info = ThreadLocalRandom.current().nextInt(0, 100);
+		msg.ret = in;
 		try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
 		} catch (InterruptedException e) {}
 		out.send(msg, port_index);
@@ -36,7 +38,7 @@ class Consumer extends Thread {
 		ports_num = n;
 	}
 	public void run() {
-		MessageInc<Integer> msg;
+		Message<Integer> msg = new Message<Integer>();
 		for (int i = 0; i < 5; i++) {
 			try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
 			} catch (InterruptedException e) {}

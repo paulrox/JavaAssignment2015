@@ -6,23 +6,24 @@ import part2.Message;
 
 class ProducerA extends Thread {
 	MailboxA mb;
-	SynchPort<TidMsg<Integer>> in;
+	SynchPort<Integer> in;
 	
 	public ProducerA(MailboxA m, String name) {
 		super(name);
 		mb = m;
-		in = new SynchPort<TidMsg<Integer>>();
+		in = new SynchPort<Integer>();
 	}
 	public void run() {
-		Message<TidMsg<Integer>> msg = new Message<TidMsg<Integer>>();
+		Message<Integer> msg = new Message<Integer>();
+		try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
+		} catch (InterruptedException e) {}
 		for (int i = 0; i < 5; i++) {
-			msg.info = new TidMsg<Integer>(0); /* insert request */
+			msg.info = 0; /* insert request */
 			msg.ret = in;
 			mb.request.send(msg);
-			msg = new Message<TidMsg<Integer>>();
-			msg.info = new TidMsg<Integer>(
-					ThreadLocalRandom.current().nextInt(0, 100),
-					Thread.currentThread().getId());
+			msg = new Message<Integer>();
+			msg.info = ThreadLocalRandom.current().nextInt(0, 100);
+			msg.tid = Thread.currentThread().getId();
 			msg.ret = in;
 			mb.insert_p.send(msg);
 		}
@@ -31,23 +32,23 @@ class ProducerA extends Thread {
 
 class ConsumerA extends Thread {
 	MailboxA mb;
-	public SynchPort<TidMsg<Integer>> in;
+	public SynchPort<Integer> in;
 	
 	public ConsumerA(MailboxA m, String name) {
 		super(name);
 		mb = m;
-		in = new SynchPort<TidMsg<Integer>>();
+		in = new SynchPort<Integer>();
 	}
 	public void run() {
-		Message<TidMsg<Integer>> msg;
+		Message<Integer> msg;
 		for (int i = 0; i < 50; i++) {
-			msg = new Message<TidMsg<Integer>>();
-			msg.info = new TidMsg<Integer>(1);  /* remove request */
+			msg = new Message<Integer>();
+			msg.info = 1;  /* remove request */
 			msg.ret = in;
 			mb.request.send(msg);
 			msg = in.receive();
-			System.out.println("Consumer received " + msg.info.value +
-					" from thread: " + msg.info.tid);
+			System.out.println("Consumer received " + msg.info +
+					" from thread: " + msg.tid);
 		}
 	}
 }

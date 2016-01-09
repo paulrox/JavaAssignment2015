@@ -35,7 +35,6 @@ public class SynchPort <T> {
 					" sent message " + m.info);
 			t_list.in_P.insert(m);
 		}
-				
 		full.fairSignal();
 		synch.fairWait();
 	}
