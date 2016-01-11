@@ -16,12 +16,11 @@ class Producer extends Thread {
 }
 
 class Consumer extends Thread {
-	public static SynchPort<Integer> in;
+	public static SynchPort<Integer> in = new SynchPort<Integer>(true, Test.tl);
 	int pnum;
 	
-	public Consumer(String name, SynchPort<Integer> inport, int n) {
+	public Consumer(String name, int n) {
 		super(name);
-		in = inport;
 		pnum = n;
 	}
 	public void run() {
@@ -29,22 +28,27 @@ class Consumer extends Thread {
 		for (int i = 0; i < pnum; i++) {
 			msg = in.receive();
 			try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				System.err.println("Interrupted Exception during sleep of"
+						+ "thread " + Thread.currentThread().getId());
+			}
 		}
 	}
 }
 
 public class Test {
 	static int pnum = 5;
+	/* queue of received messages */
 	static MessageList<Integer> in = new MessageList<Integer>();
+	/* queue of sent messages */
 	static MessageList<Integer> out = new MessageList<Integer>();
 	static TestList<MessageList<Integer>> tl = new 
 			TestList<MessageList<Integer>>(in, out);
-	static SynchPort<Integer> cport = new SynchPort<Integer>(true, tl);
-
+	/* test result */
 	static boolean testOk = true;
+	
 	public static void main(String[] args) {
-		Consumer cons = new Consumer("Consumer", cport, pnum);
+		Consumer cons = new Consumer("Consumer", pnum);
 		Producer[] prods = new Producer[pnum];
 		for (int i = 0; i < pnum; i++) {
 			prods[i] = new Producer("Producer-" + i);
@@ -55,11 +59,15 @@ public class Test {
 		for (int i = 0; i < 5; i++) {
 			try{
 				prods[i].join();
-			} catch (InterruptedException e) {}	
+			} catch (InterruptedException e) {
+				System.err.println("Error joining on producers");
+			}	
 		}
 		try {
 			cons.join();
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+			System.err.println("Error joining on consumer");
+		}
 		
 		if (tl.in_P.queue.size() == tl.out_P.queue.size()) {
 			for (int i = 0; i < tl.in_P.queue.size(); i++) {

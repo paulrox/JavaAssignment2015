@@ -17,7 +17,7 @@ public class MailboxB extends Thread{
 	Queue buffer;			/* Mailbox buffer */
 	TidQueue tid_queue;		/* producers TID queue */
 	boolean testEnable;		/* enables testing */
-	long[] test_list;	/* TID list for testing */
+	long[] test_list;		/* TID list for testing */
 	
 	public MailboxB() {
 		super("Mailbox");
@@ -99,7 +99,7 @@ public class MailboxB extends Thread{
 					msg_out.info = val;
 					msg_out.tid = prod_tid;
 					msg_in.ret.send(msg_out);
-					if (waiting_prod > 0) {
+					if (waiting_prod > 0) {	/* producers are waiting */
 						i = 0;
 						if (testEnable) {
 							output = "Producers waiting: ";
@@ -110,6 +110,7 @@ public class MailboxB extends Thread{
 							}
 							System.out.println(output);
 						}
+						/* search the high priority producer */
 						while(!blocked[i]) i++;
 						waiting_prod--;
 						blocked[i] = false;

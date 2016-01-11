@@ -31,7 +31,7 @@ public class PortArray<T> {
 	
 	public void send(Message<T> m, int n) {
 		if (n >= port_num || n < 0) {
-			System.out.println("Wrong index in send() function! index = " + n);
+			System.err.println("Wrong index in send() function! index = " + n);
 			System.exit(1);
 		}
 		mutex.fairWait();
@@ -49,7 +49,7 @@ public class PortArray<T> {
 		boolean found = false;
 		j = 0;
 		if (n > port_num || n <= 0) {
-			System.out.println("Error in receive() funtion! array dim: " + n);
+			System.err.println("Error in receive() funtion! array dim: " + n);
 			System.exit(1);
 		}
 		mutex.fairWait();
@@ -64,6 +64,7 @@ public class PortArray<T> {
 				if (!found) j = (j + 1) % port_num;
 			} while (j != rand_i && !found);
 			if (!found) {
+				/* if not found, wait the next message */
 				mutex.fairSignal();
 				if (testEnable) System.out.println(Thread.currentThread().getName() +
 						" waiting for a message");

@@ -32,7 +32,10 @@ public class FairSem {
 				waiting.insert(Thread.currentThread().getId());
 				while (wakeup.firstElem() != Thread.currentThread().getId()) {
 					try { wait();
-					} catch (InterruptedException e) {}
+					} catch (InterruptedException e) {
+						System.err.println("Interrupted Exception in fairWait. TID: " +
+								Thread.currentThread().getId());
+					}
 				}
 				wakeup.extract();
 				if (!(wakeup.empty())) {	/* wake up the other waiting threads */

@@ -14,7 +14,10 @@ class Producer extends Thread {
 		Message<Integer> msg = new Message<Integer>();
 		/* simulate message production */
 		try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+			System.err.println("Interrupted Exception during sleep of"
+					+ "thread " + Thread.currentThread().getId());
+		}
 		msg.info = ThreadLocalRandom.current().nextInt(0, 100);
 		Consumer.pa.send(msg, port_index);
 	}
@@ -38,11 +41,9 @@ class Consumer extends Thread {
 		Message<Integer> msg = new Message<Integer>();
 		for (int i = 0; i < 5; i++) {
 			msg = pa.receive(listening1, ports_num);
-			/* simulate message use */
 		}
 		for (int i = 0; i < 5; i++) {
 			msg = pa.receive(listening2, ports_num);
-			/* simulate message use */
 		}
 	}
 }
@@ -50,8 +51,10 @@ class Consumer extends Thread {
 public class Test {
 	
 	public static void main(String[] args) {
+		/* listening ports */
 		int ports_vett1[] = {1, 3, 4, 6, 9};
 		int ports_vett2[] = {2, 7, 5, 0, 8};
+		/* producers sending ports */
 		int[] indexes = {4, 3, 1, 9, 3, 7, 5, 0, 2, 8};
 		int ports_num = 5;
 		int prod_num = 10;

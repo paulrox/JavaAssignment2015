@@ -14,7 +14,10 @@ class ProducerA extends Thread {
 	public void run() {
 		Message<Integer> msg = new Message<Integer>();
 		try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+			System.err.println("Interrupted Exception during sleep of"
+					+ "thread " + Thread.currentThread().getId());
+		}
 		for (int i = 0; i < 5; i++) {
 			msg.info = 0; /* insert request */
 			msg.ret = in;

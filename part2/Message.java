@@ -2,9 +2,9 @@ package part2;
 
 public class Message<T> {
 	public T info;
-	public int index;
-	public long tid;
-	public int priority;
+	public int index;		/* index field, used in part 3 */
+	public long tid;		/* TID field, used in part 4A */
+	public int priority;	/* priority field used in part 4B */
 	public SynchPort<T> ret;
 	
 	public Message() {

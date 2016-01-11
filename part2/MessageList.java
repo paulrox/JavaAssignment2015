@@ -22,7 +22,10 @@ public class MessageList<T> {
 	public synchronized void insert(Message<T> var) {
 		while (queue.size() == Integer.MAX_VALUE) {
 			try { wait();
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				System.err.println("Interrupted Exception in thread TID: " +
+						Thread.currentThread().getId());
+			}
 		}
 		queue.add(var);
 		notifyAll();
@@ -32,7 +35,10 @@ public class MessageList<T> {
 		Message<T> tmp;
 		while (queue.isEmpty()) {
 			try{ wait();
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				System.err.println("Interrupted Exception in thread TID: " +
+						Thread.currentThread().getId());
+			}
 		}
 		tmp = queue.remove(0);
 		notifyAll();
@@ -43,7 +49,7 @@ public class MessageList<T> {
 		if (!queue.isEmpty()) {
 			return queue.get(0);
 		} else {
-			return null; //this number could never be a thread TID
+			return null;
 		}
 	}
 	

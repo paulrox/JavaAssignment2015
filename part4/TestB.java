@@ -53,9 +53,14 @@ class ConsumerB extends Thread {
 			msg = in.receive();	/* receive the value */
 			System.out.println("Consumer received " + msg.info +
 					" from thread: " + msg.tid);
-			/* consume message */
-			try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
-			} catch (InterruptedException e) {}
+			/* every 10 receives, wait some time*/
+			if (i % 10 == 0) {
+				try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
+				} catch (InterruptedException e) {
+					System.err.println("Interrupted Exception during sleep of"
+							+ "thread " + Thread.currentThread().getId());
+				}
+			}
 		}
 	}
 }
