@@ -47,14 +47,8 @@ public class PortArray<T> {
 		int rand_i, j;
 		boolean found = false;
 		j = 0;
+		//available.fairWait();
 		mutex.fairWait();
-		if (msg_count == 0) {
-			mutex.fairSignal();
-			if (testEnable) System.out.println(Thread.currentThread().getName() +
-					" waiting for a message");
-			available.fairWait();
-			mutex.fairWait();
-		}
 		while (!found) {
 			rand_i = ThreadLocalRandom.current().nextInt(0, port_num);
 			j = rand_i;
@@ -64,10 +58,11 @@ public class PortArray<T> {
 				}
 				if (!found) j = (j + 1) % port_num;
 			} while (j != rand_i && !found);
-			if (!found && msg_count == 0) {
+			if (!found) {
 				mutex.fairSignal();
 				if (testEnable) System.out.println(Thread.currentThread().getName() +
 						" waiting for a message");
+				System.out.println("message available: " + msg_count);
 				available.fairWait();
 				mutex.fairWait();
 			}

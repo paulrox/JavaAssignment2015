@@ -51,8 +51,8 @@ public class Test {
 	
 	public static void main(String[] args) {
 		int ports_vett1[] = {1, 3, 4, 6, 9};
-		int ports_vett2[] = {2, 7, 3, 0, 8};
-		int[] indexes = {4, 3, 1, 9, 3, 7, 3, 0, 2, 8};
+		int ports_vett2[] = {2, 7, 5, 0, 8};
+		int[] indexes = {4, 3, 1, 9, 3, 7, 5, 0, 2, 8};
 		int ports_num = 5;
 		int prod_num = 10;
 		int ports_size = 10;
