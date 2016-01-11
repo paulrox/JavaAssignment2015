@@ -10,7 +10,6 @@ import part2.SynchPort;
 public class PortArray<T> {
 	int port_num;				/* total number of ports */
 	int[] waiting;				/* messages waiting to be received */
-	int msg_count;				/* number of pending in the array */
 	List<SynchPort<T>> ports;	/* list containing the ports used */
 	FairSem mutex, available;
 	boolean testEnable;			/* enables testing */
@@ -18,7 +17,6 @@ public class PortArray<T> {
 	public PortArray(int n, boolean t) {
 		SynchPort<T> p;
 		port_num = n;
-		msg_count = 0;
 		ports = new ArrayList<SynchPort<T>>();
 		mutex = new FairSem(1);		/* mutual exclusion semaphore */
 		available = new FairSem(0);	/* message availability semaphore */
@@ -32,11 +30,14 @@ public class PortArray<T> {
 	}
 	
 	public void send(Message<T> m, int n) {
+		if (n >= port_num || n < 0) {
+			System.out.println("Wrong index in send() function! index = " + n);
+			System.exit(1);
+		}
 		mutex.fairWait();
 		waiting[n]++;
-		msg_count++;
-		mutex.fairSignal();
 		available.fairSignal();
+		mutex.fairSignal();
 		if (testEnable) System.out.println(Thread.currentThread().getName() +
 				" sent message " + m.info + " through port " + n);
 		ports.get(n).send(m);
@@ -47,9 +48,13 @@ public class PortArray<T> {
 		int rand_i, j;
 		boolean found = false;
 		j = 0;
-		//available.fairWait();
+		if (n > port_num || n <= 0) {
+			System.out.println("Error in receive() funtion! array dim: " + n);
+			System.exit(1);
+		}
 		mutex.fairWait();
 		while (!found) {
+			/* generate a random initial index */
 			rand_i = ThreadLocalRandom.current().nextInt(0, port_num);
 			j = rand_i;
 			do {
@@ -62,13 +67,12 @@ public class PortArray<T> {
 				mutex.fairSignal();
 				if (testEnable) System.out.println(Thread.currentThread().getName() +
 						" waiting for a message");
-				System.out.println("message available: " + msg_count);
 				available.fairWait();
 				mutex.fairWait();
 			}
 		}
+		/* port found */
 		waiting[j]--;
-		msg_count--;
 		mutex.fairSignal();
 		m = ports.get(j).receive();
 		m.index = j;
