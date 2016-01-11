@@ -4,55 +4,58 @@ import java.util.concurrent.ThreadLocalRandom;
 import part2.SynchPort;
 import part2.Message;
 
+/* Producer thread */
+
 class ProducerB extends Thread {
 	int priority;
-	MailboxB mb;
-	SynchPort<MessageB<Integer>> in;
+	public SynchPort<Integer> in;
 	
-	public ProducerB(MailboxB m, String name, int prio) {
+	public ProducerB(String name, int prio) {
 		super(name);
 		priority = prio;
-		mb = m;
-		in = new SynchPort<MessageB<Integer>>();
+		in = new SynchPort<Integer>();
 	}
 	public void run() {
-		Message<MessageB<Integer>> msg = new Message<MessageB<Integer>>();
+		Message<Integer> msg = new Message<Integer>();
 		try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
 		} catch (InterruptedException e) {}
 		for (int i = 0; i < 5; i++) {
-			msg.info = new MessageB<Integer>(0, -1, priority); /* insert request */
+			msg.info = 0; /* insert request */
+			msg.tid = Thread.currentThread().getId();
+			msg.priority = priority;
 			msg.ret = in;
-			mb.request.send(msg);
-			msg = in.receive();
-			msg = new Message<MessageB<Integer>>();
-			msg.info = new MessageB<Integer>(
-					ThreadLocalRandom.current().nextInt(0, 100),
-					Thread.currentThread().getId());
+			MailboxB.request.send(msg);	/* send the request */
+			msg = in.receive();		/* receive a reply from the Mailbox */
+			msg = new Message<Integer>();
+			msg.info = ThreadLocalRandom.current().nextInt(0, 100);
+			msg.tid = Thread.currentThread().getId();
 			msg.ret = in;
-			mb.insert_p.send(msg);
+			MailboxB.insert_p.send(msg);	/* send the value */
 		}
 	}
 }
 
+/* Consumer thread */
+
 class ConsumerB extends Thread {
-	MailboxB mb;
-	public SynchPort<MessageB<Integer>> in;
+	public static SynchPort<Integer> in = new SynchPort<Integer>();
 	
-	public ConsumerB(MailboxB m, String name) {
+	public ConsumerB(String name) {
 		super(name);
-		mb = m;
-		in = new SynchPort<MessageB<Integer>>();
 	}
 	public void run() {
-		Message<MessageB<Integer>> msg;
+		Message<Integer> msg;
 		for (int i = 0; i < 50; i++) {
-			msg = new Message<MessageB<Integer>>();
-			msg.info = new MessageB<Integer>(1);  /* remove request */
+			msg = new Message<Integer>();
+			msg.info = 1;  /* remove request */
 			msg.ret = in;
-			mb.request.send(msg);
-			msg = in.receive();
-			System.out.println("Consumer received " + msg.info.value +
-					" from thread: " + msg.info.tid);
+			MailboxB.request.send(msg);	/* send the request */
+			msg = in.receive();	/* receive the value */
+			System.out.println("Consumer received " + msg.info +
+					" from thread: " + msg.tid);
+			/* consume message */
+			try{ sleep(ThreadLocalRandom.current().nextInt(100, 600)); 
+			} catch (InterruptedException e) {}
 		}
 	}
 }
@@ -60,12 +63,14 @@ class ConsumerB extends Thread {
 public class TestB {
 	
 	public static void main(String[] args) {
-		MailboxB mail = new MailboxB();
-		ConsumerB cons = new ConsumerB(mail, "Consumer");
+		long[] tid_list = new long[10];
 		ProducerB[] prods = new ProducerB[10];
+		ConsumerB cons = new ConsumerB("Consumer");
 		for (int i = 0; i < 10; i++) {
-			prods[i] = new ProducerB(mail, "Producer-" + i, i + 1);
+			prods[i] = new ProducerB("Producer-" + i, i + 1);
+			tid_list[i] = prods[i].getId();
 		}
+		MailboxB mail = new MailboxB(true, tid_list);
 		mail.start();
 		cons.start();
 		for (int i = 0; i < 10; i++) {

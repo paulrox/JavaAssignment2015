@@ -4,27 +4,22 @@ import java.util.concurrent.ThreadLocalRandom;
 import part1.TestList;
 
 class Producer extends Thread {
-	Consumer cons;
-	SynchPort<Integer> in;
 	
-	public Producer(SynchPort<Integer> inport, Consumer c, String name) {
+	public Producer(String name) {
 		super(name);
-		cons = c;
-		in = inport;
 	}
 	public void run() {
 		Message<Integer> msg = new Message<Integer>();
 		msg.info = ThreadLocalRandom.current().nextInt(0, 100);
-		msg.ret = in;
-		cons.in.send(msg);
+		Consumer.in.send(msg);
 	}
 }
 
 class Consumer extends Thread {
-	public SynchPort<Integer> in;
+	public static SynchPort<Integer> in;
 	int pnum;
 	
-	public Consumer(SynchPort<Integer> inport, String name, int n) {
+	public Consumer(String name, SynchPort<Integer> inport, int n) {
 		super(name);
 		in = inport;
 		pnum = n;
@@ -46,21 +41,13 @@ public class Test {
 	static TestList<MessageList<Integer>> tl = new 
 			TestList<MessageList<Integer>>(in, out);
 	static SynchPort<Integer> cport = new SynchPort<Integer>(true, tl);
-	static SynchPort<Integer> pport0 = new SynchPort<Integer>();
-	static SynchPort<Integer> pport1 = new SynchPort<Integer>();
-	static SynchPort<Integer> pport2 = new SynchPort<Integer>();
-	static SynchPort<Integer> pport3 = new SynchPort<Integer>();
-	static SynchPort<Integer> pport4 = new SynchPort<Integer>();
+
 	static boolean testOk = true;
 	public static void main(String[] args) {
-		Consumer cons = new Consumer(cport, "Consumer", pnum);
+		Consumer cons = new Consumer("Consumer", cport, pnum);
 		Producer[] prods = new Producer[pnum];
-		prods[0] = new Producer(pport0, cons, "Producer-0");
-		prods[1] = new Producer(pport1, cons, "Producer-1");
-		prods[2] = new Producer(pport2, cons, "Producer-2");
-		prods[3] = new Producer(pport3, cons, "Producer-3");
-		prods[4] = new Producer(pport4, cons, "Producer-4");
 		for (int i = 0; i < pnum; i++) {
+			prods[i] = new Producer("Producer-" + i);
 			prods[i].start();
 		}
 		cons.start();
